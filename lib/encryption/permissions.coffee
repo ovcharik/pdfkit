@@ -39,22 +39,46 @@
 
 class PDFPermissions
 
-  @flags:
-    all      : 1 << ( 2 - 1)
-    print    : 1 << ( 3 - 1)
-    modify   : 1 << ( 4 - 1)
-    copy     : 1 << ( 5 - 1)
-    annotate : 1 << ( 6 - 1)
-    fill     : 1 << ( 9 - 1)
-    extract  : 1 << (10 - 1)
-    assembly : 1 << (11 - 1)
-    printHQ  : 1 << (12 - 1)
+  # Table of permissions
+  @table: [
+    #-----+------------+-----#
+    # Bit | Name       | Rev #
+    #-----+------------+-----#
+    [  2  , 'all'      , 2   ]
+    [  3  , 'print'    , 2   ]
+    [  4  , 'modify'   , 2   ]
+    [  5  , 'copy'     , 2   ]
+    [  6  , 'annotate' , 2   ]
+    [  9  , 'fill'     , 3   ]
+    [ 10  , 'extract'  , 3   ]
+    [ 11  , 'assembly' , 3   ]
+    [ 12  , 'printHQ'  , 3   ]
+    #-----+------------+-----#
+  ]
 
-  @parse: (flags = [], revision = 2) ->
-    mask = flags.reduce (mem, name) =>
-      mem | (@flags[name] ? 0)
-    , 0x00
+  # Make key-value map from table of permissions.
+  #
+  # @param {Function} reducer
+  #   Reducer takes items of table row as arguments.
+  #   Reducer will be return a key-value pair as array ([key, value]).
+  #   If returned value is not array, it will be filtered.
+  #
+  # @return {Object} - Reduced map of key-value pairs.
+  @tableToMap: (reducer) =>
+    pairs = @table
+      .map (row) -> reducer(row...)
+      .filter (pair) -> Array.isArray(pair)
+      .reduce ((mem, [ key, val ]) -> mem[key] = val; mem;), {}
 
+  # Generate static key-value maps
+  @bitNameMap: @tableToMap (b, n, r) -> [ b, n ]
+  @nameBitMap: @tableToMap (b, n, r) -> [ n, b ]
+  @nameRevMap: @tableToMap (b, n, r) -> [ n, r ]
+  @nameIntMap: @tableToMap (b, n, r) -> [ n, 1 << b - 1 ]
+
+
+  # Convert list of permission names to byte buffer
+  @permsToBuffer: (perms = [], rev = 2) ->
     # Integer objects can be interpreted as binary values in a signed
     # twos-complement form. Since all the reserved high-order flag bits
     # in the encryption dictionary’s P value are required to be 1,
@@ -62,11 +86,47 @@ class PDFPermissions
     # For example, assuming revision 2 of the security handler,
     # the value -44 permits printing and copying but disallows modifying
     # the contents and annotations.
-    mask |= if revision >= 3 then ~0xFFF else ~0x3F
+    mask = switch
+      when rev >= 3 then ~0xFFF # 12 bits
+      when rev == 2 then ~0x3F  #  6 bits
+      else throw new Error('Invalid revision')
 
-    buff = Buffer.alloc(4)
-    buff.writeInt32BE(mask)
-    return buff
+    # Check revisions
+    ignored = perms
+      .filter (n) => (@nameRevMap[n] ? 0) > rev
+
+    least = ignored
+      .map (n) => @nameRevMap[n] ? 0
+      .reduce ((m, r) => Math.max(m, r)), 0
+
+    if ignored.length > 0
+      err = new Error "
+        #{ignored.join(', ')} permissions will be ignored.
+        Need revision #{least} or greater.
+      "
+      console.warn err.stack
+
+    # Compute bit mask for permissions
+    bits = mask | perms
+      .map (n) => @nameIntMap[n] ? 0
+      .reduce ((s, i) => s | i), 0
+
+    buffer = Buffer.alloc(4)
+    buffer.writeInt32BE(bits)
+    return buffer
+
+
+  # Convert number or byte buffer to list of permission names
+  @bufferToPerms: (buffer, rev = 2) ->
+    int = switch
+      when 'number' is typeof buffer then buffer
+      when buffer instanceof Buffer  then buffer.readInt32BE()
+      else throw new Error('Invalid type of buffer. Must be a number or byte buffer.')
+
+    return @table
+      .filter ([b, n, r]) => rev >= r
+      .filter ([b, n, r]) => int & (@nameIntMap[n] ? 0)
+      .map ([b, n, r]) => n
 
 
 module.exports = PDFPermissions

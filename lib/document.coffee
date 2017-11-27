@@ -8,6 +8,7 @@ fs = require 'fs'
 PDFObject = require './object'
 PDFReference = require './reference'
 PDFPage = require './page'
+{ randomBytes } = require './encryption/crypto'
 
 class PDFDocument extends stream.Readable
   constructor: (@options = {}) ->
@@ -15,6 +16,11 @@ class PDFDocument extends stream.Readable
 
     # PDF version
     @version = 1.3
+
+    # File id
+    # The calculation of the file identifier need not be reproducible;
+    # all that matters is that the identifier is likely to be unique.
+    @fileId = Buffer.from randomBytes(16)
 
     # Whether streams should be compressed
     @compress = @options.compress ? yes
@@ -39,6 +45,7 @@ class PDFDocument extends stream.Readable
     @page = null
 
     # Initialize mixins
+    @initEncryption()
     @initColor()
     @initVector()
     @initFonts()
@@ -71,6 +78,7 @@ class PDFDocument extends stream.Readable
       this::[name] = method
 
   # Load mixins
+  mixin require './mixins/encryption'
   mixin require './mixins/color'
   mixin require './mixins/vector'
   mixin require './mixins/fonts'
@@ -156,7 +164,6 @@ class PDFDocument extends stream.Readable
       PDFDocument#write is deprecated, and will be removed in a future version of PDFKit.
       Please pipe the document into a Node stream.
     '
-
     console.warn err.stack
 
     @pipe fs.createWriteStream(filename)
@@ -187,12 +194,17 @@ class PDFDocument extends stream.Readable
     @_root.end()
     @_root.data.Pages.end()
 
+    if @encryption
+      @_encrypt = @_getEncryptionRef()
+      @_encrypt.end() if @_encrypt
+
     if @_waiting is 0
       @_finalize()
     else
       @_ended = true
 
   _finalize: (fn) ->
+
     # generate xref
     xRefOffset = @_offset
     @_write "xref"
@@ -205,10 +217,14 @@ class PDFDocument extends stream.Readable
 
     # trailer
     @_write 'trailer'
-    @_write PDFObject.convert
+
+    trailerData =
+      ID  : [ @fileId, @fileId ]
       Size: @_offsets.length + 1
       Root: @_root
       Info: @_info
+    trailerData.Encrypt = @_encrypt if @_encrypt
+    @_write PDFObject.convert trailerData
 
     @_write 'startxref'
     @_write "#{xRefOffset}"

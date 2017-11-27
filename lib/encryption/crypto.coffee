@@ -12,12 +12,12 @@ bufferToWordArray = b2wa = (buffer = '', args...) ->
 
 wordArrayToBuffer = wa2b = (array = {}) ->
   view = Uint32Array.from(array.words ? [])
-  Buffer.from(view.buffer).swap32()
+  length = array.sigBytes ? null
+  Buffer.from(view.buffer).swap32().slice(0, length)
 
 
-wrapHash = (hash) -> (msg = '', args...) ->
-  array = b2wa msg, args...
-  wa2b hash array
+randomBytes = (length) ->
+  wa2b WordArray.random length
 
 wrapHasher = (hasher) -> (data = '', args...) ->
   return wa2b hasher.create().finalize b2wa data, args... if data
@@ -26,16 +26,23 @@ wrapHasher = (hasher) -> (data = '', args...) ->
   end       : (data) -> wa2b @hasher.finalize b2wa data
   sum       : (data) -> @end data
 
-wrapEncryptor = (encryptor) -> (key = '', args...) ->
+wrapEncryptor = (encryptor, options = {}) -> (key = '', args...) ->
   buffer    : WordArray.create()
-  encryptor : encryptor.createEncryptor b2wa key, args...
+  encryptor : encryptor.createEncryptor b2wa(key, args...), options?() ? options
   reset     : (data) -> @encryptor.reset data; return @
   write     : (data) -> @buffer.concat @encryptor.process b2wa data; return @
   end       : (data) -> wa2b @buffer.concat @encryptor.finalize b2wa data
 
 
 module.exports =
-  Crypto       : Crypto
-  WordArray    : WordArray
-  MD5Hasher    : wrapHasher(Crypto.algo.MD5)
-  RC4Encryptor : wrapEncryptor(Crypto.algo.RC4)
+  randomBytes: randomBytes
+
+  hash:
+    MD5: wrapHasher Crypto.algo.MD5
+
+  encrypt:
+    RC4: wrapEncryptor Crypto.algo.RC4
+    AES: wrapEncryptor Crypto.algo.AES, () ->
+      iv     : WordArray.random 32
+      mode   : Crypto.mode.CBC
+      padding: Crypto.pad.Pkcs7

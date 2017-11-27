@@ -31,7 +31,7 @@ class PDFObject
 
     return buff
 
-  @convert: (object) ->
+  @convert: (object, encrypt) ->
     # String literals are converted to the PDF name type
     if typeof object is 'string'
       '/' + object
@@ -54,32 +54,44 @@ class PDFObject
       string = string.replace escapableRe, (c) ->
         return escapable[c]
 
-      '(' + string + ')'
+      if encrypt
+        '<' + encrypt(string).toString('hex') + '>'
+      else
+        '(' + string + ')'
 
     # Buffers are converted to PDF hex strings
     else if Buffer.isBuffer(object)
-      '<' + object.toString('hex') + '>'
+      if encrypt
+        '<' + encrypt(object).toString('hex') + '>'
+      else
+        '<' + object.toString('hex') + '>'
 
     else if object instanceof PDFReference
       object.toString()
 
     else if object instanceof Date
-      '(D:' + pad(object.getUTCFullYear(), 4) +
-              pad(object.getUTCMonth() + 1, 2) +
-              pad(object.getUTCDate(), 2) +
-              pad(object.getUTCHours(), 2) +
-              pad(object.getUTCMinutes(), 2) +
-              pad(object.getUTCSeconds(), 2) +
-      'Z)'
+      date = [
+        pad(object.getUTCFullYear(), 4)
+        pad(object.getUTCMonth() + 1, 2)
+        pad(object.getUTCDate(), 2)
+        pad(object.getUTCHours(), 2)
+        pad(object.getUTCMinutes(), 2)
+        pad(object.getUTCSeconds(), 2)
+      ].join('')
+      date = 'D:' + date + 'Z'
+      if encrypt
+        '<' + encrypt(date).toString('hex') + '>'
+      else
+        '(' + date + ')'
 
     else if Array.isArray object
-      items = (PDFObject.convert e for e in object).join(' ')
+      items = (PDFObject.convert(e, encrypt) for e in object).join(' ')
       '[' + items + ']'
 
     else if {}.toString.call(object) is '[object Object]'
       out = ['<<']
       for key, val of object
-        out.push '/' + key + ' ' + PDFObject.convert(val)
+        out.push '/' + key + ' ' + PDFObject.convert(val, encrypt)
 
       out.push '>>'
       out.join '\n'
