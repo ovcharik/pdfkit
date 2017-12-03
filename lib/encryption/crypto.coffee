@@ -1,6 +1,7 @@
 # Helpers for crypto-js
 
 import Crypto from 'crypto-js'
+# import { algo, lib, mode, pad } from 'crypto-js'
 
 WordArray = Crypto.lib.WordArray
 

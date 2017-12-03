@@ -1,4 +1,4 @@
-import Crypto from './crypto'
+import { hash, encrypt } from './crypto'
 import Permissions from './permissions'
 
 
@@ -62,7 +62,7 @@ class PDFSecurity
 
     # b) Initialize the MD5 hash function and pass the result
     #    of step (a) as input to this function.
-    ownHash = Crypto.hash.MD5().update(ownBuff)
+    ownHash = hash.MD5().update(ownBuff)
 
     # c) Pass the value of the encryption dictionary’s O entry to the
     #    MD5 hash function. ("Algorithm 3: Computing the encryption
@@ -97,7 +97,7 @@ class PDFSecurity
     if opts.revision >= 3
       size = opts.length / 8
       for i in [0...50]
-        ownHash = Crypto.hash.MD5 ownHash.slice 0, size
+        ownHash = hash.MD5 ownHash.slice 0, size
 
     # i) Set the encryption key to the first n bytes of the output from
     #    the final MD5 hash, where n shall always be 5 for security handlers
@@ -126,14 +126,14 @@ class PDFSecurity
 
     # b) Initialize the MD5 hash function and pass the result
     #    of step (a) as input to this function.
-    ownHash = Crypto.hash.MD5(ownBuff)
+    ownHash = hash.MD5(ownBuff)
 
     # c) (Security handlers of revision 3 or greater)
     #    Do the following 50 times: Take the output from the previous
     #    MD5 hash and pass it as input into a new MD5 hash.
     if opts.revision >= 3
       for i in [1..50]
-        ownHash = Crypto.hash.MD5(ownHash)
+        ownHash = hash.MD5(ownHash)
 
     # d) Create an RC4 encryption key using the first n bytes
     #    of the output from the final MD5 hash, where n shall always
@@ -149,7 +149,7 @@ class PDFSecurity
 
     # f) Encrypt the result of step (e), using an RC4 encryption
     #    function with the encryption key obtained in step (d).
-    ownKey = Crypto.encrypt.RC4(keyBase).end(usrBuff)
+    ownKey = encrypt.RC4(keyBase).end(usrBuff)
 
     # g) (Security handlers of revision 3 or greater) Do the following
     #    19 times: Take the output from the previous invocation of the RC4
@@ -161,7 +161,7 @@ class PDFSecurity
     if opts.revision >= 3
       for i in [1..19]
         keyBuff = keyBase.map (v) -> v ^ i
-        ownKey = Crypto.encrypt.RC4(keyBuff).end(ownKey)
+        ownKey = encrypt.RC4(keyBuff).end(ownKey)
 
     # h) Store the output from the final invocation of the RC4 function
     #    as the value of the O entry in the encryption dictionary.
@@ -185,7 +185,7 @@ class PDFSecurity
     # b) Encrypt the 32-byte padding string shown in step (a)
     #    of "Algorithm 2: Computing an encryption key", using an RC4
     #    encryption function with the encryption key from the preceding step.
-    usrKey = Crypto.encrypt.RC4(usrBuff).end(PADDIGN)
+    usrKey = encrypt.RC4(usrBuff).end(PADDIGN)
 
     # c) Store the result of step (b) as the value of the U entry
     #    in the encryption dictionary
@@ -211,7 +211,7 @@ class PDFSecurity
     # b) Initialize the MD5 hash function and pass the 32-byte padding
     #    string shown in step (a) of "Algorithm 2: Computing an encryption
     #    key" as input to this function.
-    usrHash = Crypto.hash.MD5().update(PADDIGN)
+    usrHash = hash.MD5().update(PADDIGN)
 
     # c) Pass the first element of the file’s file identifier array
     #    (the value of the ID entry in the document’s trailer dictionary;
@@ -221,7 +221,7 @@ class PDFSecurity
 
     # d) Encrypt the 16-byte result of the hash, using an RC4 encryption
     #    function with the encryption key from step (a).
-    usrKey = Crypto.encrypt.RC4(keyBase).end(usrHash)
+    usrKey = encrypt.RC4(keyBase).end(usrHash)
 
     # e) Do the following 19 times: Take the output from the previous
     #    invocation of the RC4 function and pass it as input to a new invocation
@@ -231,7 +231,7 @@ class PDFSecurity
     #    of the iteration counter (from 1 to 19).
     for i in [1..19]
       keyBuff = keyBase.map (v) -> v ^ i
-      usrKey = Crypto.encrypt.RC4(keyBuff).end(usrKey)
+      usrKey = encrypt.RC4(keyBuff).end(usrKey)
 
     # f) Append 16 bytes of arbitrary padding to the output from the final
     #    invocation of the RC4 function and store the 32-byte result as the value

@@ -1,4 +1,4 @@
-import Crypto from './crypto'
+import { hash, encrypt } from './crypto'
 import Security from './security'
 import Permissions from './permissions'
 
@@ -78,7 +78,7 @@ class PDFEncryption
 
     # c) Initialize the MD5 hash function and pass the result of step (b)
     #    as input to this function.
-    key = Crypto.hash.MD5(key)
+    key = hash.MD5(key)
 
     # d) Use the first (n + 5) bytes, up to a maximum of 16, of the output
     #    from the MD5 hash as the key for the RC4 or AES symmetric key
@@ -92,7 +92,7 @@ class PDFEncryption
     #
     #    The output is the encrypted data to be stored in the PDF file.
     key = key.slice 0, Math.min(16, fullSize)
-    encryptor = if @useAES then Crypto.encrypt.AES else Crypto.encrypt.RC4
+    encryptor = if @useAES then encrypt.AES else encrypt.RC4
     return encryptor(key)
 
 
