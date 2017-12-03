@@ -3,10 +3,11 @@ PDFImage - embeds images in PDF documents
 By Devon Govett
 ###
 
-fs = require 'fs'
-Data = require './data'
-JPEG = require './image/jpeg'
-PNG = require './image/png'
+import fs from 'fs'
+
+import Data from './data'
+import PNG  from './image/png'
+import JPEG from './image/jpeg'
 
 class PDFImage
   @open: (src, label) ->
@@ -31,4 +32,4 @@ class PDFImage
     else
       throw new Error 'Unknown image format.'
           
-module.exports = PDFImage
+export default PDFImage

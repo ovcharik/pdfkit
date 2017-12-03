@@ -1,5 +1,5 @@
-zlib = require 'zlib'
-PNG = require 'png-js'
+import zlib from 'zlib'
+import PNG from 'png-js'
 
 class PNGImage
   constructor: (data, @label) ->
@@ -131,4 +131,4 @@ class PNGImage
         throw err if err
         @finalize()
 
-module.exports = PNGImage
+export default PNGImage

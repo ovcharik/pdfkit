@@ -3,6 +3,8 @@ PDFObject - converts JavaScript types into their corrisponding PDF types.
 By Devon Govett
 ###
 
+import PDFReference from './reference'
+
 class PDFObject
   pad = (str, length) ->
     (Array(length + 1).join('0') + str).slice(-length)
@@ -108,5 +110,7 @@ class PDFObject
 
     throw new Error "unsupported number: #{n}"
 
-module.exports = PDFObject
-PDFReference = require './reference'
+
+export default PDFObject
+export number = PDFObject.number
+export convert = PDFObject.convert

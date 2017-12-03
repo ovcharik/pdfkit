@@ -121,4 +121,4 @@ class PDFPage
     LETTER: [612.00, 792.00]
     TABLOID: [792.00, 1224.00]
   
-module.exports = PDFPage
+export default PDFPage

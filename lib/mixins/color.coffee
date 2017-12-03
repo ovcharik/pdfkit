@@ -1,6 +1,6 @@
-{PDFGradient, PDFLinearGradient, PDFRadialGradient} = require '../gradient'
+import { PDFGradient, PDFLinearGradient, PDFRadialGradient } from '../gradient'
 
-module.exports =
+export color =
   initColor: ->
     # The opacity dictionaries
     @_opacityRegistry = {}

@@ -137,4 +137,4 @@ class Data
     for byte in bytes
       @writeByte byte
     
-module.exports = Data
+export default Data

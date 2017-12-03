@@ -1,8 +1,10 @@
-PDFFont = require '../font'
-PDFObject = require '../object'
+import PDFBaseFont from './base'
+import PDFObject from '../object'
 
-class EmbeddedFont extends PDFFont
+class EmbeddedFont extends PDFBaseFont
   constructor: (@document, @font, @id) ->
+    super arguments...
+
     @subset = @font.createSubset()
     @unicode = [[0]]
     @widths = [@font.getGlyph(0).advanceWidth]
@@ -197,4 +199,4 @@ class EmbeddedFont extends PDFFont
 
     return cmap
 
-module.exports = EmbeddedFont
+export default EmbeddedFont

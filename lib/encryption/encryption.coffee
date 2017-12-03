@@ -1,6 +1,6 @@
-Crypto = require './crypto'
-Security = require './security'
-Permissions = require './permissions'
+import Crypto from './crypto'
+import Security from './security'
+import Permissions from './permissions'
 
 
 # http://wwwimages.adobe.com/content/dam/acom/en/devnet/pdf/PDF32000_2008.pdf
@@ -96,4 +96,4 @@ class PDFEncryption
     return encryptor(key)
 
 
-module.exports = PDFEncryption
+export default PDFEncryption

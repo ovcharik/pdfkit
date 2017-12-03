@@ -1,6 +1,6 @@
-PDFImage = require '../image'
+import PDFImage from '../image'
 
-module.exports =
+export images =
   initImages: ->
     @_imageRegistry = {}
     @_imageCount = 0

@@ -1,8 +1,10 @@
-{EventEmitter} = require 'events'
-LineBreaker = require 'linebreak'
+import { EventEmitter } from 'events'
+import LineBreaker from 'linebreak'
 
 class LineWrapper extends EventEmitter
   constructor: (@document, options) ->
+    super()
+
     @indent    = options.indent or 0
     @characterSpacing = options.characterSpacing or 0
     @wordSpacing = options.wordSpacing is 0
@@ -227,4 +229,4 @@ class LineWrapper extends EventEmitter
     @emit 'sectionStart', options, this
     return true
       
-module.exports = LineWrapper
+export default LineWrapper

@@ -3,12 +3,14 @@ PDFReference - represents a reference to another object in the PDF object heirar
 By Devon Govett
 ###
 
-zlib = require 'zlib'
-stream = require 'stream'
+import zlib from 'zlib'
+import stream from 'stream'
+import PDFObject from './object'
 
 class PDFReference extends stream.Writable
   constructor: (@document, @id, @data = {}) ->
     super decodeStrings: no
+
     @gen = 0
     @deflate = null
     @compress = @document.compress and not @data.Filter
@@ -49,7 +51,7 @@ class PDFReference extends stream.Writable
     callback()
 
   end: (chunk) ->
-    super
+    super chunk
 
     if @deflate
       @deflate.end()
@@ -85,5 +87,4 @@ class PDFReference extends stream.Writable
   toString: ->
     return "#{@id} #{@gen} R"
 
-module.exports = PDFReference
-PDFObject = require './object'
+export default PDFReference

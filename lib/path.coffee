@@ -323,4 +323,4 @@ class SVGPath
       a00 * x3 + a01 * y3,   a10 * x3 + a11 * y3
     ]
 
-module.exports = SVGPath
+export default SVGPath

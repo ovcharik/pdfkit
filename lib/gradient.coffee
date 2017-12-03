@@ -147,7 +147,7 @@ class PDFGradient
 
 class PDFLinearGradient extends PDFGradient
   constructor: (@doc, @x1, @y1, @x2, @y2) ->
-    super
+    super arguments...
     
   shader: (fn) ->
     @doc.ref
@@ -162,7 +162,7 @@ class PDFLinearGradient extends PDFGradient
     
 class PDFRadialGradient extends PDFGradient
   constructor: (@doc, @x1, @y1, @r1, @x2, @y2, @r2) ->
-    super
+    super arguments...
     
   shader: (fn) ->
     @doc.ref
@@ -175,4 +175,4 @@ class PDFRadialGradient extends PDFGradient
   opacityGradient: ->
     return new PDFRadialGradient(@doc, @x1, @y1, @r1, @x2, @y2, @r2)
       
-module.exports = {PDFGradient, PDFLinearGradient, PDFRadialGradient}
+export { PDFGradient, PDFLinearGradient, PDFRadialGradient }

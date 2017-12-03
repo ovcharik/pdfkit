@@ -129,4 +129,4 @@ class PDFPermissions
       .map ([b, n, r]) => n
 
 
-module.exports = PDFPermissions
+export default PDFPermissions

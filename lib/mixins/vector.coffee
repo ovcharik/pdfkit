@@ -1,10 +1,11 @@
-SVGPath = require '../path'
-{number} = require '../object'
+import SVGPath from '../path'
+import { number } from '../object'
 
 # This constant is used to approximate a symmetrical arc using a cubic
 # Bezier curve.
 KAPPA = 4.0 * ((Math.sqrt(2) - 1.0) / 3.0)
-module.exports =
+
+export vector =
   initVector: ->
     @_ctm = [1, 0, 0, 1, 0, 0] # current transformation matrix
     @_ctmStack = []

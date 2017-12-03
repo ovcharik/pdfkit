@@ -1,5 +1,5 @@
-Crypto = require './crypto'
-Permissions = require './permissions'
+import Crypto from './crypto'
+import Permissions from './permissions'
 
 
 # http://wwwimages.adobe.com/content/dam/acom/en/devnet/pdf/PDF32000_2008.pdf
@@ -249,4 +249,4 @@ class PDFSecurity
       when opts.revision >= 3 then @computeUserKeyRev3(user, options)
       else throw new Error('Invalid revision version')
 
-module.exports = PDFSecurity
+export default PDFSecurity

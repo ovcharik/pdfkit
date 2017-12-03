@@ -3,16 +3,27 @@ PDFDocument - represents an entire PDF document
 By Devon Govett
 ###
 
-stream = require 'stream'
-fs = require 'fs'
-PDFObject = require './object'
-PDFReference = require './reference'
-PDFPage = require './page'
-{ randomBytes } = require './encryption/crypto'
+import fs from 'fs'
+import stream from 'stream'
+
+import PDFPage from './page'
+import PDFObject from './object'
+import PDFReference from './reference'
+
+import { randomBytes } from './encryption/crypto'
+
+import * as mixins from './mixins'
+
 
 class PDFDocument extends stream.Readable
+
+  for name, methods of mixins
+    for name, method of methods
+      @::[name] = method
+
+
   constructor: (@options = {}) ->
-    super
+    super()
 
     # PDF version
     @version = 1.3
@@ -72,19 +83,6 @@ class PDFDocument extends stream.Readable
     # Add the first page
     if @options.autoFirstPage isnt false
       @addPage()
-
-  mixin = (methods) =>
-    for name, method of methods
-      this::[name] = method
-
-  # Load mixins
-  mixin require './mixins/encryption'
-  mixin require './mixins/color'
-  mixin require './mixins/vector'
-  mixin require './mixins/fonts'
-  mixin require './mixins/text'
-  mixin require './mixins/images'
-  mixin require './mixins/annotations'
 
   addPage: (options = @options) ->
     # end the current page if needed
@@ -236,4 +234,4 @@ class PDFDocument extends stream.Readable
   toString: ->
     "[object PDFDocument]"
 
-module.exports = PDFDocument
+export default PDFDocument

@@ -1,11 +1,14 @@
-AFMFont = require './afm'
-PDFFont = require '../font'
-fs = require 'fs'
+import AFMFont from './afm'
+import PDFBaseFont from './base'
+import fs from 'fs'
 
-class StandardFont extends PDFFont
+class StandardFont extends PDFBaseFont
+
   constructor: (@document, @name, @id) ->
+    super arguments...
+
     @font = new AFMFont STANDARD_FONTS[@name]()
-    {@ascender,@descender,@bbox,@lineGap} = @font
+    { @ascender, @descender, @bbox, @lineGap } = @font
     
   embed: ->
     @dictionary.data =
@@ -62,4 +65,4 @@ class StandardFont extends PDFFont
     "Symbol":                -> fs.readFileSync __dirname + "/../font/data/Symbol.afm", 'utf8'
     "ZapfDingbats":          -> fs.readFileSync __dirname + "/../font/data/ZapfDingbats.afm", 'utf8'
   
-module.exports = StandardFont
+export default StandardFont

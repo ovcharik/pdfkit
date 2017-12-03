@@ -1,4 +1,4 @@
-module.exports = 
+export annotations =
   annotate: (x, y, w, h, options) ->
     options.Type = 'Annot'
     options.Rect = @_convertRect x, y, w, h

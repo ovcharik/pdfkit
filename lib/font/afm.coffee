@@ -1,4 +1,4 @@
-fs = require 'fs'
+import fs from 'fs'
 
 class AFMFont
   @open: (filename) ->
@@ -192,4 +192,4 @@ class AFMFont
       udieresis     yacute         thorn          ydieresis
   '''.split(/\s+/)
     
-module.exports = AFMFont
+export default AFMFont

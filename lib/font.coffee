@@ -1,4 +1,7 @@
-fontkit = require 'fontkit'
+import fontkit from 'fontkit'
+
+import StandardFont from './font/standard'
+import EmbeddedFont from './font/embedded'
 
 class PDFFont
   @open: (document, src, family, id) ->
@@ -21,33 +24,5 @@ class PDFFont
       throw new Error 'Not a supported font format or standard PDF font.'
       
     return new EmbeddedFont document, font, id
-    
-  constructor: ->
-    throw new Error 'Cannot construct a PDFFont directly.'
-    
-  encode: (text) ->
-    throw new Error 'Must be implemented by subclasses'
-      
-  widthOfString: (text) ->
-    throw new Error 'Must be implemented by subclasses'
-    
-  ref: ->
-    @dictionary ?= @document.ref()
-    
-  finalize: ->
-    return if @embedded or not @dictionary?
 
-    @embed()
-    @embedded = true
-    
-  embed: ->
-    throw new Error 'Must be implemented by subclasses'
-      
-  lineHeight: (size, includeGap = false) ->
-    gap = if includeGap then @lineGap else 0
-    (@ascender + gap - @descender) / 1000 * size
-  
-module.exports = PDFFont
-
-StandardFont = require './font/standard'
-EmbeddedFont = require './font/embedded'
+export default PDFFont

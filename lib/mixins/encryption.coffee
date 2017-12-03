@@ -1,12 +1,12 @@
-Permissions = require '../encryption/permissions'
-Encryption = require '../encryption/encryption'
+import Permissions from '../encryption/permissions'
+import Encryption from '../encryption/encryption'
 
 
 warnStack = (message) ->
   err = new Error message
   console.warn err.stack
 
-module.exports =
+export encryption =
   initEncryption: ->
     @encryption = false
 

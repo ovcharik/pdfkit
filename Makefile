@@ -1,7 +1,7 @@
 .PHONY: js
 
 js:
-	./node_modules/.bin/coffee -o js -c lib/
+	./node_modules/.bin/coffee -o js --compile lib/
 	cp -r lib/font/data js/font/data
 
 browser: lib/**/*.coffee

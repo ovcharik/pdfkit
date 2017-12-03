@@ -1,8 +1,8 @@
 # Helpers for crypto-js
 
-Crypto = require 'crypto-js'
-WordArray = Crypto.lib.WordArray
+import Crypto from 'crypto-js'
 
+WordArray = Crypto.lib.WordArray
 
 bufferToWordArray = b2wa = (buffer = '', args...) ->
   if buffer not instanceof Buffer
@@ -14,7 +14,6 @@ wordArrayToBuffer = wa2b = (array = {}) ->
   view = Uint32Array.from(array.words ? [])
   length = array.sigBytes ? null
   Buffer.from(view.buffer).swap32().slice(0, length)
-
 
 randomBytes = (length) ->
   wa2b WordArray.random length
@@ -34,15 +33,14 @@ wrapEncryptor = (encryptor, options = {}) -> (key = '', args...) ->
   end       : (data) -> wa2b @buffer.concat @encryptor.finalize b2wa data
 
 
-module.exports =
-  randomBytes: randomBytes
+export { randomBytes }
 
-  hash:
-    MD5: wrapHasher Crypto.algo.MD5
+export hash =
+  MD5: wrapHasher Crypto.algo.MD5
 
-  encrypt:
-    RC4: wrapEncryptor Crypto.algo.RC4
-    AES: wrapEncryptor Crypto.algo.AES, () ->
-      iv     : WordArray.random 32
-      mode   : Crypto.mode.CBC
-      padding: Crypto.pad.Pkcs7
+export encrypt =
+  RC4: wrapEncryptor Crypto.algo.RC4
+  AES: wrapEncryptor Crypto.algo.AES, () ->
+    iv     : WordArray.random 32
+    mode   : Crypto.mode.CBC
+    padding: Crypto.pad.Pkcs7

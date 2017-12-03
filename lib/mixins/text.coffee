@@ -1,7 +1,7 @@
-LineWrapper = require '../line_wrapper'
-{number} = require '../object'
+import LineWrapper from '../line_wrapper'
+import { number } from '../object'
 
-module.exports =
+export text =
   initText: ->
     # Current coordinates
     @x = 0

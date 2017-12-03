@@ -1,6 +1,6 @@
-PDFFont = require '../font'
+import PDFFont from '../font'
 
-module.exports =
+export fonts =
   initFonts: ->
     # Lookup table for embedded fonts
     @_fontFamilies = {}
