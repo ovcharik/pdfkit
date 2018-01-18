@@ -10,3 +10,4 @@ js/
 demo/bundle.js
 *.html
 !demo/browser.html
+package-lock.json
